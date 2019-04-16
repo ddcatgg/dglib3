@@ -3,16 +3,16 @@
 import glob
 from setuptools import setup, find_packages
 
-from dglib import __version__
+from dglib3 import __version__
 
 setup(
-	name='dglib',
+	name='dglib3',
 	packages=find_packages(),
 	version=__version__,
 	description='Daemon glance lib (for py3)',
 	author='DDGG',
 	author_email='990080@qq.com',
-	url='https://github.com/ddcatgg/dglib',
+	url='https://github.com/ddcatgg/dglib3',
 	download_url='',
 	keywords=['util', 'tool', 'ddgg'],
 	classifiers=[
