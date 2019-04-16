@@ -1,0 +1,10 @@
+/.idea
+/.project
+/.pydevproject
+/MANIFEST
+/build
+/dglib3.egg-info
+/dist
+*.pyc
+*.pyo
+/.settings
