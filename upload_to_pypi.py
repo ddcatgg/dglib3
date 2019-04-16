@@ -29,7 +29,7 @@ def make_wheel():
 	m = re.search(pattern, stdout_str, re.I|re.M)
 	pkg_name, pkg_ver = None, None
 	if m:
-		pkg_name, pkg_ver = m.groups()
+		pkg_name, pkg_ver = map(bytes.decode, m.groups())
 	return ret, pkg_name, pkg_ver
 
 
