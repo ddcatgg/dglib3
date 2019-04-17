@@ -2,10 +2,8 @@
 
 
 def html_unescape(s):
-    import HTMLParser
-    parser = HTMLParser.HTMLParser()
-    s = s.replace('&nbsp;', '')
-    return parser.unescape(s)
+    import html
+    return html.unescape(s)
 
 
 def urlencode_uni(us):
