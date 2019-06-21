@@ -65,7 +65,7 @@ def singleton(strict=True):
 
         def __call__(self, *args, **kw):
             if strict:
-                return self.get_instance(self.__cls, *args, **kw)
+                return self.get_instance(*args, **kw)
 
             return self.create_instance(*args, **kw)
 
