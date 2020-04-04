@@ -10,14 +10,14 @@ class LogTimeContext(object):
     统计一些语句的执行时间
 
     示例：
-        with LogTimeContext('test001', min_ms=10):
+        with LogTimeContext('test001', min_sec=10):
             test('001')
     """
 
-    def __init__(self, name, min_ms=0):
+    def __init__(self, name, min_sec=0):
         import logging
         self.name = name
-        self.min_ms = min_ms
+        self.min_sec = min_sec
         self.log = logging.getLogger()
         self.tick_start = 0
 
@@ -26,19 +26,19 @@ class LogTimeContext(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         dt = time.clock() - self.tick_start
-        if not self.min_ms or dt >= self.min_ms:
+        if not self.min_sec or dt >= self.min_sec:
             self.log.debug('%s cost: %.2fms', self.name, dt * 1000)
 
 
-def log_time(log_min_ms=0):
+def log_time(min_sec=0):
     """
     返回一个装饰器，用来统计被装饰的方法的执行时间。
 
     参数：
-        log_min_ms 超过多少毫秒才记录到日志，默认0表示不限。
+        min_sec 超过多少秒才记录到日志，默认0表示不限。
 
     示例：
-        @log_time(log_min_ms=10)
+        @log_time(min_sec=10)
         def _make_title(self):
             title = util.make_random_title()
             if self.cfg.html_use_encode:
@@ -56,7 +56,7 @@ def log_time(log_min_ms=0):
             t = time.clock()
             func(self)
             dt = (time.clock() - t) * 1000
-            if not log_min_ms or dt >= log_min_ms:
+            if not min_sec or dt >= min_sec:
                 logger.debug('%s() cost: %.2fms', func.__name__, dt)
 
         return wrapped
