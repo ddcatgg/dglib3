@@ -21,11 +21,11 @@ def make_wheel():
 	stdout_str = p.stdout.read()
 	stderr_str = p.stderr.read()
 	ret = p.wait()
-	print(stdout_str)
-	print(stderr_str)
+	print(stdout_str.decode('gbk'))
+	print(stderr_str.decode('gbk'))
 
 	# creating build\bdist.win32\wheel\dglib3-0.0.1.dist-info\WHEEL
-	pattern = rb'^creating build\\bdist\.win32\\wheel\\([^-]+)-(.+?)\.dist-info\\WHEEL'
+	pattern = rb'^creating build\\bdist\.(?:win32|win-amd64)\\wheel\\([^-]+)-(.+?)\.dist-info\\WHEEL'
 	m = re.search(pattern, stdout_str, re.I|re.M)
 	pkg_name, pkg_ver = None, None
 	if m:
