@@ -3,7 +3,8 @@ import sys
 import os
 import time
 import json
-
+import codecs
+import locale
 
 def format_frame(s: str, linelen: int = 0) -> str:
     if not linelen:
@@ -120,6 +121,20 @@ def intval(s: str, default: int = 0) -> int:
     except ValueError:
         v = default
     return v
+
+
+def defaultencoding():
+    return codecs.lookup(locale.getpreferredencoding()).name
+
+
+SYS_ENCODING = defaultencoding()
+
+
+def setdefaultencoding(encoding=None):
+    if encoding is None:
+        encoding = locale.getpreferredencoding()
+    reload(sys)
+    sys.setdefaultencoding(encoding)
 
 
 def nullfile() -> str:
