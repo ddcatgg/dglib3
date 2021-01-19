@@ -28,7 +28,7 @@ class CompositeFile(object):
     如：.add(sys.sysout)
     """
 
-    def __init__(self, filename="", mode="w", encoding="", nocache=False):
+    def __init__(self, filename='', mode='w', encoding='', nocache=False):
         self.files = []
         self.encoding = encoding
         if filename:
@@ -85,7 +85,7 @@ class ScreenLogger(object):
     sys.stdout = sys.stderr = ScreenLogger("日志文件名")
     """
 
-    def __init__(self, filename="", encoding=None, append=False, showtime=False, logfile=None):
+    def __init__(self, filename='', encoding=None, append=False, showtime=False, logfile=None):
         self.filename = filename
         self.append = append
         self.showtime = showtime
@@ -96,10 +96,10 @@ class ScreenLogger(object):
 
     def create_file(self, filename, append):
         if append and os.path.exists(filename):
-            logfile = codecs.open(filename, "a", self.encoding)
+            logfile = codecs.open(filename, 'a', self.encoding)
         else:
             makesure_dirpathexists(filename)
-            logfile = codecs.open(filename, "w", self.encoding)
+            logfile = codecs.open(filename, 'w', self.encoding)
         return logfile
 
     def write(self, s):
@@ -107,7 +107,7 @@ class ScreenLogger(object):
             now = int(time.time())
             if self.lastlogtime != now:
                 self.lastlogtime = now
-                s = "\n".join([time.strftime("\n%Y-%m-%d %H:%M:%S"), s])
+                s = '\n'.join([time.strftime('\n%Y-%m-%d %H:%M:%S'), s])
 
         if not self.logfile and self.filename:
             try:
@@ -157,7 +157,24 @@ def redirect_stdout_stderr_tologger():
 
 def nullfile():
     import platform
-    return "/dev/null" if platform.system() == "Linux" else "nul"
+    return '/dev/null' if platform.system() == 'Linux' else 'nul'
+
+
+def unicode_safe_write(f, s, encoding=None, safe_stuff=None):
+    """
+    写入流时如果发生UnicodeError会自动做编解码，未指定encoding时默认为系统编码SYS_ENCODING。
+    :param f: 有write方法的对象
+    :param s: 要写的内容，可以是unicode或str。
+    :param encoding: 当写入流时发生UnicodeError，考虑将unicode<->str时采用的编码，默认为系统编码SYS_ENCODING。
+    :param safe_stuff: 发生UnicodeError时写入这个，如果为None的话才会去做编码转换，多个同类型流输出时可提高效率。
+    :return:
+    """
+    try:
+        f.write(s)
+    except UnicodeError:
+        safe_stuff = safe_coding(s, encoding)
+        f.write(safe_stuff)
+    return safe_stuff
 
 
 def safe_coding(s, encoding=None, safe_stuff=None, errors='replace'):
