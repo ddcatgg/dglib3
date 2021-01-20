@@ -219,7 +219,7 @@ def json_get(s, key, default=None):
     return val
 
 
-def dget(d: dict, path: str, default=None, separator: str = '/') -> str:
+def dget(d: dict, path: str, default=None, separator: str = '.') -> str:
     if isinstance(path, str):
         keys = path.split(separator)
     else:  # iterable
