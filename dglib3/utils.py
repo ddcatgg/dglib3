@@ -6,6 +6,7 @@ import json
 import codecs
 import locale
 
+
 def format_frame(s: str, linelen: int = 0) -> str:
     if not linelen:
         result = ' '.join(['%.2X' % ord(a) for a in s])
@@ -156,6 +157,11 @@ def makesure_dirpathexists(dir_or_path_or_file: str) -> bool:
     except:  # WindowsError: [Error 183] (路径已存在)
         pass
     return result
+
+
+def filename_add_tail(filename, tail):
+    base, ext = os.path.splitext(filename)
+    return ''.join([base, tail, ext])
 
 
 def disable_deprecationwarnings():
