@@ -38,7 +38,7 @@ def upload_wheel(pkg_name, pkg_ver, py_ver='3'):
 		import twine
 	except ImportError:
 		raise Exception('You need twine, pip install twine!')
-	cmdline = 'twine upload dist/%s-%s-py%s-none-any.whl' % (pkg_name, pkg_ver, py_ver)
+	cmdline = 'twine upload --verbose dist/%s-%s-py%s-none-any.whl' % (pkg_name, pkg_ver, py_ver)
 	p = subprocess.Popen(cmdline)
 	ret = p.wait()
 	return ret
