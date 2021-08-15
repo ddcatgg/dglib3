@@ -140,6 +140,10 @@ class StreamToLogger(object):
         for line in buf.rstrip().splitlines():
             self.logger.log(self.log_level, line.rstrip())
 
+    def flush(self):
+        for hdlr in self.logger.handlers:
+            hdlr.flush()
+
 
 def redirect_stdout_stderr_tologger():
     logger_stdout = logging.getLogger('STDOUT')
