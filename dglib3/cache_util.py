@@ -4,6 +4,7 @@ import json
 import pickle
 import codecs
 import collections.abc
+import logging
 from functools import wraps
 
 from dglib3.utils import makesure_dirpathexists
@@ -20,6 +21,7 @@ class FileCache(object):
         self.save_enabled = True
         self.cache_set_name = ''
         self.base_dir = ''
+        self.log = logging.getLogger(self.__class__.__name__)
 
     def cache(self, filename, cache_format=None, list_apply=None):
         filename = self.get_final_cache_filename(filename)
@@ -52,6 +54,8 @@ class FileCache(object):
         return cache_format
 
     def load_cache(self, filename, cache_format, list_apply=None):
+        self.log.info('Loading cache file: %s', filename)
+
         if cache_format is None:
             cache_format = self.guess_file_cache_format(filename)
 
@@ -69,6 +73,8 @@ class FileCache(object):
                 return result
 
     def save_cache(self, cache, filename, cache_format):
+        self.log.info('Saving cache file: %s', filename)
+
         if cache_format is None:
             cache_format = self.guess_file_cache_format(filename)
 
