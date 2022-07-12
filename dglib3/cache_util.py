@@ -21,6 +21,7 @@ class FileCache(object):
         self.save_enabled = True
         self.cache_set_name = ''
         self.base_dir = ''
+        self.save_empty = True
         self.log = logging.getLogger(self.__class__.__name__)
 
     def cache(self, filename, cache_format=None, list_apply=None):
@@ -73,6 +74,9 @@ class FileCache(object):
                 return result
 
     def save_cache(self, cache, filename, cache_format):
+        if not cache and not self.save_empty:
+            return
+
         self.log.info('Saving cache file: %s', filename)
 
         if cache_format is None:
@@ -85,12 +89,12 @@ class FileCache(object):
                 json.dump(cache, f)
         elif cache_format == FORMAT_PICKLE:
             with open(filename, 'wb') as f:
-                return pickle.dump(cache, f, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(cache, f, pickle.HIGHEST_PROTOCOL)
         elif cache_format == FORMAT_TXT:
             if not (isinstance(cache, collections.abc.Sequence) and not isinstance(cache, (str, bytes))):
                 raise TypeError('FORMAT_TXT can only apply to sequence types, but got %r' % type(cache))
             with codecs.open(filename, 'w', encoding='utf-8') as f:
-                return f.write('\r\n'.join(map(str, cache)))
+                f.write('\r\n'.join(map(str, cache)))
 
     def get_final_cache_filename(self, filename):
         if self.cache_set_name:
