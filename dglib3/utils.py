@@ -242,5 +242,15 @@ def dget_int(d: dict, path: str, default: int = 0, separator: str = '.') -> int:
 
 
 def dataclass_load_from_env(dataclazz, prefix=''):
-    field_values = [os.getenv((prefix + field).upper()) for field in dataclazz.__dataclass_fields__.keys()]
-    return dataclazz(*field_values)
+    name_value_map = {name: os.getenv((prefix + name).upper(), _field) for name, _field in
+                      dataclazz.__dataclass_fields__.items()}
+    field_kw = {}
+    for name, value in name_value_map.items():
+        if isinstance(value, dataclasses.Field):
+            if not value.init:
+                continue
+            if not (value.default is dataclasses.MISSING and value.default_factory is dataclasses.MISSING):
+                continue
+            value = None
+        field_kw[name] = value
+    return dataclazz(**field_kw)
