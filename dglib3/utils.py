@@ -131,13 +131,6 @@ def defaultencoding():
 SYS_ENCODING = defaultencoding()
 
 
-def setdefaultencoding(encoding=None):
-    if encoding is None:
-        encoding = locale.getpreferredencoding()
-    reload(sys)
-    sys.setdefaultencoding(encoding)
-
-
 def nullfile() -> str:
     import platform
     return '/dev/null' if platform.system() == 'Linux' else 'nul'
@@ -246,3 +239,8 @@ def dget_int(d: dict, path: str, default: int = 0, separator: str = '.') -> int:
     if isinstance(v, str) and v.isdigit():
         return int(v)
     return default
+
+
+def dataclass_load_from_env(dataclazz: Any, prefix=''):
+    field_values = [os.getenv((prefix + field).upper()) for field in dataclazz.__dataclass_fields__.keys()]
+    return dataclazz(*field_values)
