@@ -5,6 +5,7 @@ import time
 import json
 import codecs
 import locale
+import dataclasses
 
 
 def format_frame(s: str, linelen: int = 0) -> str:
