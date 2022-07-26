@@ -241,6 +241,6 @@ def dget_int(d: dict, path: str, default: int = 0, separator: str = '.') -> int:
     return default
 
 
-def dataclass_load_from_env(dataclazz: Any, prefix=''):
+def dataclass_load_from_env(dataclazz, prefix=''):
     field_values = [os.getenv((prefix + field).upper()) for field in dataclazz.__dataclass_fields__.keys()]
     return dataclazz(*field_values)
