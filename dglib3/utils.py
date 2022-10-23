@@ -51,8 +51,11 @@ def dhms(seconds: int) -> str:
     return s
 
 
-def change_file_ext(filename: str, ext: str) -> str:
+def changefileext(filename: str, ext: str) -> str:
     return '.'.join(list(os.path.splitext(filename)[:-1]) + [ext])
+
+
+change_file_ext = changefileext
 
 
 def we_are_frozen() -> bool:
