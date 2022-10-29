@@ -8,14 +8,14 @@ import locale
 import dataclasses
 
 
-def format_frame(s: str, linelen: int = 0) -> str:
+def format_frame(s: bytes, linelen: int = 0) -> str:
     if not linelen:
-        result = ' '.join(['%.2X' % ord(a) for a in s])
+        result = ' '.join(['%.2X' % a for a in s])
     else:
         lines = []
         while s:
             para, s = s[:linelen], s[linelen:]
-            line = ' '.join(['%.2X' % ord(a) for a in para])
+            line = ' '.join(['%.2X' % a for a in para])
             lines.append(line)
         result = '\n'.join(lines)
     return result
