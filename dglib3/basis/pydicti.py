@@ -156,8 +156,15 @@ extent permitted by applicable law.
 """
 __all__ = ['build_dicti', 'Dicti', 'odicti', 'dicti']
 
+import sys
 import sys as _sys
-from collections import MutableMapping as _MutableMapping
+
+# 2024-04-27 (DDGG): Compatible with Python 3.10 and above versions.
+if sys.version_info >= (3, 10):
+    from collections.abc import MutableMapping as _MutableMapping
+else:
+    from collections import MutableMapping as _MutableMapping
+
 from copy import deepcopy as _deepcopy
 
 try:
