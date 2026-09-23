@@ -173,21 +173,39 @@ def nullfile():
 
 def unicode_safe_write(f, s, encoding=None, safe_stuff=None):
     """
-    写入流时如果发生UnicodeError会自动做有损清洗后重写，未指定encoding时默认为系统编码SYS_ENCODING。
-    :param f: 文本流（如 open('w')、codecs.open(...)、sys.stdout）。二进制流（'wb'）配 bytes 输入可正常写入，配 str 输入会抛 TypeError。
-    :param s: 要写的内容，可以是str或bytes。
-    :param encoding: 当写入流时发生UnicodeError，清洗文本时采用的编码，默认为系统编码SYS_ENCODING。
-    :param safe_stuff: 发生UnicodeError时写入这个，如果为None的话才会去做清洗，多个同类型流输出时可提高效率。
-    :return: 发生UnicodeError时返回清洗后的str，否则返回None。
+    写入流时自动适配流类型与内容类型；文本流编码失败时做有损清洗后重写。
+    - 文本流 + str：直接写；编码失败按流自身编码（缺省 SYS_ENCODING）清洗后重写。
+    - 二进制流 + bytes：直接写。
+    - 二进制流 + str：按 encoding 编码成 bytes 写入（py2 版即有此行为）。
+    - 文本流 + bytes：按 encoding 解码成 str 写入。
+    :param f: 有write方法的对象。
+    :param s: 要写的内容，str 或 bytes。
+    :param encoding: 类型适配或清洗时采用的编码，缺省优先取流自身 encoding，否则 SYS_ENCODING。
+    :param safe_stuff: 发生 UnicodeError 时写入这个，如果为None的话才会去做清洗，多个同类型流输出时可提高效率。
+    :return: 发生 UnicodeError 时返回清洗后的str，否则返回None。
     """
     try:
         f.write(s)
     except UnicodeError:
-        # 优先用目标流自身的编码清洗（如控制台代码页），否则可能清洗后依然无法写出。
+        # 文本流编码失败：优先用目标流自身的编码清洗（如控制台代码页），否则可能清洗后依然无法写出。
         if not encoding:
             encoding = getattr(f, 'encoding', None) or SYS_ENCODING
         safe_stuff = safe_coding(s, encoding)
         f.write(safe_stuff)
+    except TypeError:
+        # py2 中流类型与内容类型不匹配时 file.write 同样抛 UnicodeError 走上面的分支，
+        # py3 拆分后改为 TypeError，这里做等价适配：
+        # 二进制流 + str -> 编码后写入；文本流 + bytes -> 解码后写入。
+        # 仅对 str/bytes 做适配，其余 TypeError 照常抛出，避免掩盖调用方错误。
+        if not isinstance(s, (str, bytes)):
+            raise
+        if not encoding:
+            encoding = getattr(f, 'encoding', None) or SYS_ENCODING
+        if isinstance(s, str):
+            s = s.encode(encoding, errors='replace')
+        else:
+            s = s.decode(encoding, errors='replace')
+        f.write(s)
     return safe_stuff
 
 
