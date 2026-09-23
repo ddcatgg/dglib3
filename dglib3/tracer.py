@@ -174,7 +174,7 @@ def nullfile():
 def unicode_safe_write(f, s, encoding=None, safe_stuff=None):
     """
     写入流时如果发生UnicodeError会自动做有损清洗后重写，未指定encoding时默认为系统编码SYS_ENCODING。
-    :param f: 有write方法的对象
+    :param f: 文本流（如 open('w')、codecs.open(...)、sys.stdout）。二进制流（'wb'）配 bytes 输入可正常写入，配 str 输入会抛 TypeError。
     :param s: 要写的内容，可以是str或bytes。
     :param encoding: 当写入流时发生UnicodeError，清洗文本时采用的编码，默认为系统编码SYS_ENCODING。
     :param safe_stuff: 发生UnicodeError时写入这个，如果为None的话才会去做清洗，多个同类型流输出时可提高效率。
