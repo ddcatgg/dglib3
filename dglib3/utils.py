@@ -258,3 +258,38 @@ def dataclass_load_from_env(dataclazz, prefix=''):
             value = None
         field_kw[name] = value
     return dataclazz(**field_kw)
+
+
+def _u(s, encoding=SYS_ENCODING, errors='replace'):
+    if isinstance(s, str):
+        return s
+    elif isinstance(s, bytes):
+        return s.decode(encoding, errors=errors)
+    else:  # int, etc..
+        return str(s)
+
+
+def _u8(s):
+    return _u(s, encoding='utf-8')
+
+
+def _a(u, encoding=SYS_ENCODING, from_encoding=SYS_ENCODING, errors='replace'):
+    if isinstance(u, bytes):
+        if encoding.lower().replace('-', '') == from_encoding.lower().replace('-', ''):
+            return u
+        return u.decode(from_encoding, errors=errors).encode(encoding, errors=errors)
+    elif isinstance(u, str):
+        return u.encode(encoding, errors=errors)
+    else:
+        return str(u).encode(encoding, errors=errors)
+
+
+def _a8(s):
+    return _a(s, encoding='utf-8', from_encoding='utf-8')
+
+
+# 与 py2 版 dglib.utils 保持同名导出
+to_unicode = _u
+to_unicode_utf8 = _u8
+to_bytes = _a
+to_bytes_utf8 = _a8

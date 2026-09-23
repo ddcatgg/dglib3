@@ -70,8 +70,8 @@ class SafeOutStream(object):
         self.errors = errors
 
     def write(self, s):
-        if isinstance(s, unicode):
-            s = s.encode(self.encoding, errors=self.errors)
+        if isinstance(s, str):
+            s = s.encode(self.encoding or SYS_ENCODING, errors=self.errors)
         self.underlying_stream.write(s)
 
     def flush(self):
@@ -109,13 +109,20 @@ class ScreenLogger(object):
                 self.lastlogtime = now
                 s = '\n'.join([time.strftime('\n%Y-%m-%d %H:%M:%S'), s])
 
+        # 回显到真正的控制台（self.stdout 是 __init__ 时捕获的 __stdout__，
+        # 避免 sys.stdout 被替换成自身后无限递归）。
+        unicode_safe_write(self.stdout, s)
+
         if not self.logfile and self.filename:
             try:
                 self.logfile = self.create_file(self.filename, self.append)
             except:
                 pass
         if self.logfile:
-            self.logfile.write(s)
+            try:
+                self.logfile.write(s)
+            except Exception:
+                pass
 
     def flush(self):
         self.stdout.flush()
@@ -166,28 +173,32 @@ def nullfile():
 
 def unicode_safe_write(f, s, encoding=None, safe_stuff=None):
     """
-    写入流时如果发生UnicodeError会自动做编解码，未指定encoding时默认为系统编码SYS_ENCODING。
+    写入流时如果发生UnicodeError会自动做有损清洗后重写，未指定encoding时默认为系统编码SYS_ENCODING。
     :param f: 有write方法的对象
-    :param s: 要写的内容，可以是unicode或str。
-    :param encoding: 当写入流时发生UnicodeError，考虑将unicode<->str时采用的编码，默认为系统编码SYS_ENCODING。
-    :param safe_stuff: 发生UnicodeError时写入这个，如果为None的话才会去做编码转换，多个同类型流输出时可提高效率。
-    :return:
+    :param s: 要写的内容，可以是str或bytes。
+    :param encoding: 当写入流时发生UnicodeError，清洗文本时采用的编码，默认为系统编码SYS_ENCODING。
+    :param safe_stuff: 发生UnicodeError时写入这个，如果为None的话才会去做清洗，多个同类型流输出时可提高效率。
+    :return: 发生UnicodeError时返回清洗后的str，否则返回None。
     """
     try:
         f.write(s)
     except UnicodeError:
+        # 优先用目标流自身的编码清洗（如控制台代码页），否则可能清洗后依然无法写出。
+        if not encoding:
+            encoding = getattr(f, 'encoding', None) or SYS_ENCODING
         safe_stuff = safe_coding(s, encoding)
         f.write(safe_stuff)
     return safe_stuff
 
 
 def safe_coding(s, encoding=None, safe_stuff=None, errors='replace'):
+    """py3：bytes 按 encoding 解码为 str；str 中按 encoding 无法编码的字符按 errors 策略替换，
+    保证返回值可以安全写入文本流。"""
     if not encoding:
         encoding = SYS_ENCODING
-    if isinstance(s, unicode):
-        if safe_stuff is None:
-            safe_stuff = s.encode(encoding, errors=errors)
-    else:
+    if isinstance(s, bytes):
         if safe_stuff is None:
             safe_stuff = s.decode(encoding, errors=errors)
+    elif safe_stuff is None:
+        safe_stuff = s.encode(encoding, errors=errors).decode(encoding, errors=errors)
     return safe_stuff
